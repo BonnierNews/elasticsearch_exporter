@@ -187,6 +187,19 @@ func main() {
 		logger.Error("failed to create Elasticsearch collector", "err", err)
 		os.Exit(1)
 	}
+
+	// Add the start_time metric
+        startTime := time.Now().Unix()
+        startTimeMetric := prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+		Name: "elasticsearch_exporter_start_time",
+		Help: "Start time of the Elasticsearch Exporter",
+	},
+	[]string{},
+	)
+	startTimeMetric.WithLabelValues().Set(float64(startTime))
+	prometheus.MustRegister(startTimeMetric)
+	
 	prometheus.MustRegister(exporter)
 
 	// TODO(@sysadmind): Remove this when we have a better way to get the cluster name to down stream collectors.
